@@ -21,9 +21,19 @@
 # is a `/*  /index.html  200` line there, and the assets runtime rejects it as an
 # infinite loop and fails the entire deploy. `not_found_handling` below is the
 # Worker equivalent.
-name = "simplerta"
+# Hyphenated to match the rest of the fleet's hostnames — blend-calc,
+# pixel-peeker, aspect-calc, test-card — rather than the repo's camel case.
+# The Worker was first deployed as `simplerta`; that one is superseded and its
+# workers.dev address is no longer the address to hand anyone.
+name = "simple-rta"
 compatibility_date = "2026-07-30"
 
 [assets]
 directory = "./dist"
 not_found_handling = "single-page-application"
+
+# Attached here rather than by hand in the dashboard, so the hostname is part of
+# the repo and a fresh deploy cannot come up without it.
+[[routes]]
+pattern = "simple-rta.stoatworks-labs.com"
+custom_domain = true
