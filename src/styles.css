@@ -1,0 +1,195 @@
+/*
+ * Palette lifted from atem-overseer so the two tools look like siblings on the
+ * same rack — same greys, same green/amber/red metering ramp.
+ */
+:root {
+  --bg: #08090b;
+  --panel: #121317;
+  --panel-2: #1a1c22;
+  --tile: #000;
+  --line: #262a31;
+  --text: #e7e8ea;
+  --muted: #8a909a;
+  --muted-2: #5b616b;
+  --accent: #2b8fff;
+  --tally-red: #ff2f2f;
+  --tally-green: #33d17a;
+  --amber: #ffb02e;
+  --meter-lo: #37d67a;
+  --meter-mid: #ffd23f;
+  --meter-hi: #ff3b30;
+  --radius: 6px;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+/*
+ * The instrument occupies exactly one screen; the shared support footer sits
+ * below the fold. `dvh` rather than `vh` so a mobile browser collapsing its
+ * address bar does not leave the controls hidden behind it.
+ *
+ * This is why the page is not `overflow: hidden` — the footer has to be
+ * reachable. Nothing inside the app scrolls, so the only scroll available is
+ * the one that reveals it.
+ */
+.app { height: 100dvh; display: flex; flex-direction: column; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(#101116, #0b0c0f);
+  flex: none;
+}
+.brand { display: flex; align-items: baseline; gap: 8px; }
+.brand h1 { font-size: 15px; margin: 0; letter-spacing: 0.02em; font-weight: 650; }
+.brand h1 em { font-style: normal; color: var(--accent); }
+.brand .ver { font-size: 11px; color: var(--muted-2); font-family: var(--mono); }
+
+.spacer { flex: 1; }
+
+.srcinfo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--muted);
+  font-family: var(--mono);
+  min-width: 0;
+}
+.srcinfo .name {
+  color: var(--text);
+  max-width: 34ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted-2); flex: none; }
+.dot.live { background: var(--tally-green); box-shadow: 0 0 6px rgba(51, 209, 122, 0.7); }
+
+/* ---------- main area ---------- */
+.main { flex: 1; display: flex; min-height: 0; }
+.plots {
+  position: relative; /* the source-picker overlay anchors to this */
+  flex: 1; display: flex; flex-direction: column; min-width: 0; gap: 1px;
+  background: var(--line);
+}
+.plot { position: relative; flex: 1; min-height: 0; background: var(--tile); }
+.plot canvas { display: block; width: 100%; height: 100%; }
+/* Right-hand side: the top left corner belongs to the dB axis label. */
+.plot .plot-tag {
+  position: absolute; top: 6px; right: 12px;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted-2); pointer-events: none;
+}
+
+/* ---------- meter column, full height of the main area ---------- */
+.meterpane {
+  flex: none; width: 132px;
+  display: flex; flex-direction: column;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+}
+.meterpane .mhead {
+  padding: 6px 8px 4px;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.meterpane .mbody { flex: 1; min-height: 0; position: relative; }
+.meterpane .mbody canvas { display: block; width: 100%; height: 100%; }
+.meterpane .mfoot {
+  border-top: 1px solid var(--line);
+  padding: 6px 8px;
+  font-family: var(--mono); font-size: 11px;
+  display: grid; grid-template-columns: auto 1fr 1fr; gap: 2px 6px;
+  color: var(--muted);
+}
+.meterpane .mfoot .v { color: var(--text); text-align: right; }
+/* Broadband row: three label/value pairs rather than a label and two channels. */
+.meterpane .mfoot.weights {
+  grid-template-columns: auto 1fr;
+  grid-auto-flow: row;
+  font-size: 10px;
+}
+.meterpane .mfoot.weights .v { color: var(--muted); }
+.clip-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--muted-2);
+  border-radius: 3px; padding: 1px 5px; cursor: pointer;
+}
+.clip-btn.lit { background: var(--tally-red); border-color: var(--tally-red); color: #fff; }
+
+/* ---------- controls ---------- */
+.controls {
+  flex: none;
+  display: flex; align-items: flex-end; flex-wrap: wrap; gap: 10px 16px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+}
+.ctl { display: flex; flex-direction: column; gap: 4px; }
+.ctl > label {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2);
+}
+.seg { display: flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.seg button {
+  background: var(--panel-2); border: none; border-right: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; font-family: var(--mono);
+  padding: 6px 9px; cursor: pointer; white-space: nowrap;
+}
+.seg button:last-child { border-right: none; }
+.seg button:hover { color: var(--text); background: #22252c; }
+.seg button.on { background: var(--accent); color: #fff; }
+.seg button.on.warn { background: var(--amber); color: #17181c; }
+
+select, input[type="number"] {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: var(--radius); padding: 6px 8px; font-size: 12px; font-family: var(--mono);
+}
+select:hover { border-color: var(--accent); }
+input[type="number"] { width: 74px; }
+
+.btn {
+  padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--text); font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.on { background: var(--amber); border-color: var(--amber); color: #17181c; }
+.btn.danger { border-color: #4a2226; color: #ff8f8f; }
+
+.hint { font-size: 11px; color: var(--muted-2); font-family: var(--mono); }
+.hint b { color: var(--muted); font-weight: 600; }
+
+/* ---------- error / start overlay ---------- */
+.overlay {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(8, 9, 11, 0.82); padding: 24px; z-index: 5;
+}
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 22px 24px; max-width: 560px;
+}
+.card h2 { margin: 0 0 8px; font-size: 15px; }
+.card p { margin: 0 0 14px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.card .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.card .err {
+  font-family: var(--mono); font-size: 12px; color: #ff8f8f;
+  background: #17111300; border: 1px solid #4a2226; border-radius: var(--radius);
+  padding: 8px 10px; margin-bottom: 14px; line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .meterpane { width: 96px; }
+  .controls { gap: 8px 10px; }
+}
