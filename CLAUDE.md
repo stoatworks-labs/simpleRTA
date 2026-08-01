@@ -14,6 +14,9 @@ npm run build        # tsc -b && vite build -> dist/
 npm run lint         # oxlint
 npm run typecheck    # tsc -b
 npm run preview      # serve the built dist/ (does NOT apply _headers)
+
+node scripts/shoot.mjs --url https://simple-rta.stoatworks-labs.com
+                     # re-take docs/screenshots/ from the running app
 ```
 
 ## Deploy
@@ -22,8 +25,11 @@ npm run preview      # serve the built dist/ (does NOT apply _headers)
 cf-run npx wrangler deploy
 ```
 
-`cf-run` supplies the Cloudflare API token from the keychain. Never `wrangler
-login`. This is a Worker with static assets (`[assets] directory`), not Pages.
+Live at **https://simple-rta.stoatworks-labs.com** — hyphenated, like the rest
+of the fleet's hostnames, though the repo is camel case. `cf-run` supplies the
+Cloudflare API token from the keychain. Never `wrangler login`. This is a Worker
+with static assets (`[assets] directory`), not Pages, and the custom domain is
+declared in `wrangler.toml` rather than set in the dashboard.
 
 ## Ground rules
 

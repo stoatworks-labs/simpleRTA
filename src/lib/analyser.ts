@@ -81,6 +81,16 @@ export class RtaEngine {
   private avgPower: Float64Array = new Float64Array(0);
   private peakPower: Float64Array = new Float64Array(0);
   private spectra: Float32Array = new Float32Array(0);
+  /**
+   * First sequence number the spectra ring actually holds.
+   *
+   * `rebuild()` reallocates the ring — zeroed — while `seq` deliberately carries
+   * on, so without this a slot that has never been written reads back as a row
+   * of 0 dB. It showed up as a full-scale red line across the waterfall at the
+   * moment the resolution was changed: not a measurement, just an empty buffer
+   * being believed.
+   */
+  private spectraFrom = 0;
 
   // --- ring buffer of input samples, mixed to the analysis channel ---
   private ring = new Float64Array(0);
@@ -155,6 +165,7 @@ export class RtaEngine {
     this.avgPower = new Float64Array(n);
     this.peakPower = new Float64Array(n);
     this.spectra = new Float32Array(SPECTRUM_SLOTS * n);
+    this.spectraFrom = this.state ? this.state.seq : 0;
 
     // The ring must hold a whole transform plus a whole delivery block without
     // the tail being overwritten before it is read. Power of two for masking.
@@ -497,7 +508,7 @@ export class RtaEngine {
   spectrumAt(seq: number): Float32Array | null {
     const st = this.state;
     const n = st.bandsDb.length;
-    if (seq < 0 || seq >= st.seq || st.seq - seq > SPECTRUM_SLOTS) return null;
+    if (seq < this.spectraFrom || seq >= st.seq || st.seq - seq > SPECTRUM_SLOTS) return null;
     const slot = (((seq % SPECTRUM_SLOTS) + SPECTRUM_SLOTS) % SPECTRUM_SLOTS) * n;
     return this.spectra.subarray(slot, slot + n);
   }

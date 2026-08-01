@@ -11,6 +11,15 @@
 
 A real-time audio analyser that runs entirely in a browser tab.
 
+**[simple-rta.stoatworks-labs.com](https://simple-rta.stoatworks-labs.com)**
+
+![simpleRTA — the RTA over the spectrograph, sharing a frequency axis, with the
+level meter down the right-hand side](docs/screenshots/split.png)
+
+*Split view on the built-in pink noise. Pink noise is flat on a
+constant-percentage-bandwidth display, so a correct analyser draws a level line
+— which is what makes this the picture worth checking a change against.*
+
 - **RTA** at 1/3, 1/6, 1/12, 1/24 or 1/48 octave
 - **FFT size** 2048 to 65536, with a selectable analysis window and overlap
 - **Peak hold** per band, and exponential or infinite averaging
@@ -78,6 +87,17 @@ npm run dev
 npm test
 npm run build
 ```
+
+The screenshots in this file are taken from the running application, never
+composited:
+
+```bash
+node scripts/shoot.mjs --url https://simple-rta.stoatworks-labs.com
+```
+
+Headless Chrome starts the pink-noise source with a real mouse gesture — a
+synthetic `click()` confers no user activation, and an AudioContext will not
+start without one — then lets the analyser settle before capturing.
 
 See [AGENTS.md](AGENTS.md) for the measurement model and the traps, and
 [CLAUDE.md](CLAUDE.md) for the command reference.
