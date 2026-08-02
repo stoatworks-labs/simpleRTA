@@ -78,7 +78,9 @@ export default function App() {
           <h1>
             simple<em>RTA</em>
           </h1>
-          <span className="ver">v0.1.0</span>
+          {/* From the build, not typed here: a hand-written version is one more
+              thing to forget at release time. Same source as the About dialog. */}
+          <span className="ver">{__APP_VERSION__}</span>
         </div>
 
         <select
@@ -133,6 +135,12 @@ export default function App() {
             </span>
           )}
         </div>
+
+        {/* Opens the shared About dialog — see public/about.js, which delegates
+            this attribute from the document, so nothing needs importing here. */}
+        <button type="button" className="btn" data-stoatworks-about>
+          About
+        </button>
       </div>
 
       <div className="main">
