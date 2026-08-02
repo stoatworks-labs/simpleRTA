@@ -44,12 +44,17 @@
       there and re-run scripts/sync-support-footer.sh, never here.
       Classic + defer on purpose: it reads its config off this tag, and
       document.currentScript is null inside a module.
+
+      data-repo points at LEQtion, not at this repo, and that is deliberate:
+      simpleRTA's own repo is private, so a link to it 404s for every visitor.
+      LEQtion is the public desktop analyser and is the source a reader who
+      follows "the source is on GitHub" from here is being sent to.
     -->
     <script
       src="/support-footer.js"
       defer
       data-app="simpleRTA"
-      data-repo="https://github.com/stoatworks-labs/simpleRTA"
+      data-repo="https://github.com/stoatworks-labs/LEQtion"
       data-note="It runs entirely in your browser — the microphone signal is analysed on your machine and never uploaded."
     ></script>
   </body>
