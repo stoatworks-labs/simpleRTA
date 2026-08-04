@@ -121,17 +121,30 @@ async function waitFor(send, expression, what, timeout = 30000) {
  * By text rather than by selector because these controls are identified in the
  * UI by what they say — "1/48", "Split" — and a class name would be a second,
  * silently-breakable description of the same thing.
+ *
+ * @p label may be an array of acceptable labels, tried in order. The same
+ * control is worded differently in the two places it appears — the first-run
+ * source picker says "Pink noise test signal", the toolbar just says "Pink
+ * noise" — and which one is on screen depends on stored state that this script
+ * deliberately clears. Naming both is honest about that; matching loosely on a
+ * substring would silently pick whichever came first in the DOM.
  */
 async function clickText(send, label) {
+  const labels = Array.isArray(label) ? label : [label];
   const found = await evaluate(
     send,
-    `(() => { const b = [...document.querySelectorAll('button')]
-        .find(el => el.textContent.trim() === ${JSON.stringify(label)});
-      if (!b) return null;
-      const r = b.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`,
+    `(() => { const wanted = ${JSON.stringify(labels)};
+      const buttons = [...document.querySelectorAll('button')];
+      for (const w of wanted) {
+        const b = buttons.find(el => el.textContent.trim() === w);
+        if (b) {
+          const r = b.getBoundingClientRect();
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        }
+      }
+      return null; })()`,
   );
-  if (!found) throw new Error(`no button labelled ${label}`);
+  if (!found) throw new Error(`no button labelled ${labels.join(' or ')}`);
   const common = { x: found.x, y: found.y, button: 'left', clickCount: 1 };
   await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...common });
   await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...common });
@@ -190,12 +203,27 @@ async function main() {
     await send('Page.reload');
     await waitFor(send, RENDERED, 'the app to render after the reload');
 
+    // `.controls` is the bottom bar, and it mounts a beat before the source
+    // buttons at the top do. Waiting on it alone is a race the shoot loses on a
+    // cold profile: the click lands on a toolbar that has not drawn its source
+    // buttons yet, and the run dies claiming the button does not exist.
+    const SOURCE_READY = `[...document.querySelectorAll('button')]
+      .some(b => ['Pink noise test signal', 'Pink noise'].includes(b.textContent.trim()))`;
+    await waitFor(send, SOURCE_READY, 'the source buttons to render');
+
     console.log(`starting the pink noise source, settling ${SETTLE}s`);
-    await clickText(send, 'Pink noise test signal');
+    await clickText(send, ['Pink noise test signal', 'Pink noise']);
     await sleep(SETTLE * 1000);
 
     // 1 — the RTA, which is the picture of the tool
     await shoot(send, join(OUT, 'rta.png'));
+
+    // The same frame under the name the website's shots.json points at. It is
+    // written here rather than left to be taken by hand because that is exactly
+    // what had happened: simplerta.png was the project's hero image and the one
+    // file in this directory no script produced, so it silently aged past every
+    // other shot. Same picture, one capture, two names.
+    await shoot(send, join(OUT, 'simplerta.png'));
 
     // 2 — 1/48 octave, where the resolution claim is
     await clickText(send, '1/48');
