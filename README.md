@@ -102,6 +102,10 @@ start without one — then lets the analyser settle before capturing.
 See [AGENTS.md](AGENTS.md) for the measurement model and the traps, and
 [CLAUDE.md](CLAUDE.md) for the command reference.
 
+<!-- attributions:start -->
+This project is built on other people's work — see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+<!-- attributions:end -->
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
