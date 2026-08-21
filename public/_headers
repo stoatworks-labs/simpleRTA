@@ -7,3 +7,13 @@
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The worker is the one file that must never be served stale: a cached sw.js
+# is a cached update mechanism, and the app would stop being able to replace
+# itself. Everything it caches is content-hashed and immutable, so nothing is
+# lost by revalidating this one small file every time.
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache
