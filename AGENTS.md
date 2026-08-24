@@ -176,3 +176,10 @@ A microphone tells you about the room. Pink noise tells you about the analyser.
   applied. Levels are dBFS unless the user has calibrated them, and the app does
   not claim otherwise.
 - **No recording or export.** Nothing is stored but the settings.
+
+## Notes
+
+`docs/NOTES.md` carries this repo's working notes — current status, decisions
+already made, and the traps that have actually bitten. Read it before changing
+anything non-obvious. Cross-cutting fleet knowledge lives in
+[fleet-notes](https://github.com/stoatworks-labs/fleet-notes).
