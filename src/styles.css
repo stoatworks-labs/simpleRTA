@@ -82,8 +82,38 @@ body {
   flex: 1; display: flex; flex-direction: column; min-width: 0; gap: 1px;
   background: var(--line);
 }
-.plot { position: relative; flex: 1; min-height: 0; background: var(--tile); }
-.plot canvas { display: block; width: 100%; height: 100%; }
+.plot {
+  position: relative; flex: 1; min-height: 0; background: var(--tile);
+  display: flex; flex-direction: column;
+}
+/* The canvas takes whatever the strip above it leaves. `min-height: 0` matters:
+   a flex item defaults to its content size, and a canvas's content size is its
+   backing store, which is the *previous* frame's size times the pixel ratio. */
+.plot canvas { display: block; width: 100%; flex: 1 1 0; min-height: 0; }
+
+/* ---------- peak strip across the top of the RTA ---------- */
+.peakbar {
+  flex: none;
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 4px 12px 3px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  font-family: var(--mono);
+  min-width: 0;
+  white-space: nowrap;
+}
+.peakbar .k {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2);
+}
+.peakbar .hz {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  font-variant-numeric: tabular-nums; min-width: 8ch;
+}
+.peakbar .db { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.peakbar .tag {
+  margin-left: auto;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2);
+}
 /* Right-hand side: the top left corner belongs to the dB axis label. */
 .plot .plot-tag {
   position: absolute; top: 6px; right: 12px;
@@ -192,4 +222,6 @@ input[type="number"] { width: 74px; }
 @media (max-width: 720px) {
   .meterpane { width: 96px; }
   .controls { gap: 8px 10px; }
+  /* The resolution is on the control right below; the strip keeps the number. */
+  .peakbar .tag { display: none; }
 }

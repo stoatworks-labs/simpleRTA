@@ -41,3 +41,18 @@ silence.
 
 The measurement model and the traps are in the repo's `AGENTS.md`. Read it before
 touching `lib/bands.ts` or `lib/fft.ts`.
+
+**Peak frequency strip (2026-09-11).** The readout across the top of the RTA names
+the *tallest band of the averaged display* — never a separately derived number, so
+it cannot disagree with the bars — and refines the frequency between bins only when
+the averaged spectrum's strongest bin lies inside that band (plus a bin either side,
+for the region where bands are narrower than bins). A tone therefore reads to a
+fraction of a bin at every resolution ("997 Hz" at 1/3 octave, not "1k"); pink noise
+reads the centre of whichever band is tallest, because the strongest *bin* of a pink
+spectrum sits at the bottom of the range regardless, and quoting it would name a place
+the graph shows nothing special. `peakBand` in `lib/bands.ts`, pinned by
+`peak.test.ts`. The bin spectrum is averaged with the same weight as the bands for
+this; the sibling `LEQtion` does the same in Rust. To inject a tone into the live
+page for a check, reach the engine through the canvas's React fiber
+(`memoizedProps.engine`) and hand `engine.attach()` a `MediaStreamAudioDestinationNode`
+stream fed by an `OscillatorNode` — the app has no tone source of its own.

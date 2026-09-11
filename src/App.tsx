@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { RtaEngine } from './lib/analyser';
 import { RtaGraph } from './components/RtaGraph';
+import { PeakBanner } from './components/PeakBanner';
 import { Spectrograph } from './components/Spectrograph';
 import { LevelMeter } from './components/LevelMeter';
 import { Controls } from './components/Controls';
@@ -147,8 +148,10 @@ export default function App() {
         <div className="plots">
           {(view === 'rta' || view === 'split') && (
             <div className="plot">
+              {/* The RTA's label lives in the peak strip rather than floating
+                  over the graph, so the two never fight for the top edge. */}
+              <PeakBanner engine={engine} tag={`RTA · ${settings.fraction} octave`} />
               <RtaGraph engine={engine} settings={settings} />
-              <div className="plot-tag">RTA · {settings.fraction} octave</div>
             </div>
           )}
           {(view === 'spectrograph' || view === 'split') && (

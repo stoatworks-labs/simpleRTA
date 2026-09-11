@@ -23,6 +23,8 @@ constant-percentage-bandwidth display, so a correct analyser draws a level line
 - **RTA** at 1/3, 1/6, 1/12, 1/24 or 1/48 octave
 - **FFT size** 2048 to 65536, with a selectable analysis window and overlap
 - **Peak hold** per band, and exponential or infinite averaging
+- **Peak frequency** readout across the top of the RTA — the tallest band and
+  its level, refined to a fraction of a bin when a tone is what tops it
 - **Spectrograph** sharing the RTA's frequency axis
 - **Full-height bargraph meter** — peak, RMS, peak hold and a latching clip
   indicator, plus broadband Z / A / C readouts

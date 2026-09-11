@@ -7,7 +7,14 @@
  * `requestAnimationFrame`. Pushing spectra through React state at 20-90 frames
  * a second would spend most of a core on reconciliation.
  */
-import { buildBandPlan, integrateBands, powerToDb, type BandPlan } from './bands';
+import {
+  buildBandPlan,
+  integrateBands,
+  peakBand,
+  powerToDb,
+  type BandPlan,
+  type PeakBand,
+} from './bands';
 import { getFFT } from './fft';
 import { makeWindow, windowSums, enbwBins } from './windows';
 import { aWeightDb, cWeightDb } from './weighting';
@@ -49,6 +56,11 @@ export interface EngineState {
   bandsDb: Float32Array;
   /** Per-band peak hold, dB. Only updated while `settings.peakHold` is on. */
   peakDb: Float32Array;
+  /**
+   * The tallest band in `bandsDb`, with the frequency behind it. Null until a
+   * transform has run, and on silence. Its level is `bandsDb[index]`.
+   */
+  peakBand: PeakBand | null;
   /** Broadband level from the summed band powers, dB. */
   broadbandDb: number;
   broadbandADb: number;
@@ -79,6 +91,12 @@ export class RtaEngine {
   private power: Float64Array = new Float64Array(0);
   private bandPower: Float64Array = new Float64Array(0);
   private avgPower: Float64Array = new Float64Array(0);
+  /**
+   * The bin spectrum averaged exactly as the bands are, so the peak readout
+   * can be refined between bins without jittering on noise. One pass over the
+   * bins per transform, which is nothing next to the transform itself.
+   */
+  private avgSpectrum: Float64Array = new Float64Array(0);
   private peakPower: Float64Array = new Float64Array(0);
   private spectra: Float32Array = new Float32Array(0);
   /**
@@ -158,6 +176,7 @@ export class RtaEngine {
 
     this.frame = new Float64Array(fftSize);
     this.power = new Float64Array((fftSize >>> 1) + 1);
+    this.avgSpectrum = new Float64Array(this.power.length);
 
     this.plan = buildBandPlan(fraction, fftSize, sampleRate, this.enbw);
     const n = this.plan.bands.length;
@@ -180,6 +199,7 @@ export class RtaEngine {
       plan: this.plan,
       bandsDb: new Float32Array(n).fill(SILENCE_DB),
       peakDb: new Float32Array(n).fill(SILENCE_DB),
+      peakBand: null,
       broadbandDb: SILENCE_DB,
       broadbandADb: SILENCE_DB,
       broadbandCDb: SILENCE_DB,
@@ -190,6 +210,7 @@ export class RtaEngine {
 
   resetAveraging(): void {
     this.avgPower.fill(0);
+    this.avgSpectrum.fill(0);
     this.state.frames = 0;
   }
 
@@ -457,18 +478,24 @@ export class RtaEngine {
 
     st.frames++;
 
+    let a: number;
     if (averaging === 'inf') {
-      const k = 1 / st.frames;
-      for (let i = 0; i < n; i++) this.avgPower[i] += (this.bandPower[i] - this.avgPower[i]) * k;
+      a = 1 / st.frames;
     } else {
       const tau = AVERAGES[averaging];
       const hopSeconds = (fftSize * hopFraction) / this.info.sampleRate;
       const alpha = 1 - Math.exp(-hopSeconds / tau);
       // A first frame that starts from zero would take a whole time constant to
       // climb to the real value; seeding it means the display is right at once.
-      const a = st.frames === 1 ? 1 : alpha;
-      for (let i = 0; i < n; i++) this.avgPower[i] += (this.bandPower[i] - this.avgPower[i]) * a;
+      a = st.frames === 1 ? 1 : alpha;
     }
+    for (let i = 0; i < n; i++) this.avgPower[i] += (this.bandPower[i] - this.avgPower[i]) * a;
+
+    // The bins too, with the same weight, so the peak readout is a reading of
+    // the same average the bars are.
+    const spec = this.avgSpectrum;
+    const power = this.power;
+    for (let k = 0; k < spec.length; k++) spec[k] += (power[k] - spec[k]) * a;
 
     let total = 0;
     let totalA = 0;
@@ -492,6 +519,7 @@ export class RtaEngine {
     st.broadbandDb = powerToDb(total) + calibrationDb;
     st.broadbandADb = powerToDb(totalA) + calibrationDb;
     st.broadbandCDb = powerToDb(totalC) + calibrationDb;
+    st.peakBand = peakBand(this.plan!, this.avgPower, spec);
 
     // Keep the frame for the waterfall to collect. `bandsDb` is overwritten by
     // the next transform, which may well happen before the display draws.

@@ -91,6 +91,17 @@ export function formatHz(f: number): string {
   return `${Math.round(f * 100) / 100}`;
 }
 
+/**
+ * A frequency readout to three significant figures, with its unit: "63.2 Hz",
+ * "997 Hz", "2.47 kHz", "12.5 kHz". Rounded before the unit is chosen, so
+ * 999.6 Hz reads "1.00 kHz" rather than "1000 Hz".
+ */
+export function formatPeakHz(hz: number): string {
+  const v = Number(hz.toPrecision(3));
+  if (v >= 1000) return `${(v / 1000).toPrecision(3)} kHz`;
+  return `${v.toPrecision(3)} Hz`;
+}
+
 export function fractionDenominator(fraction: Fraction): number {
   return FRACTIONS[fraction];
 }
@@ -199,6 +210,97 @@ export function integrateBands(
     const b = bands[i];
     out[i] = integrateDensity(power, b.flo / binHz, b.fhi / binHz);
   }
+}
+
+/**
+ * Locate the strongest spectral component, interpolated between bins.
+ *
+ * `power` is a bin power spectrum at `binHz` spacing. Returns null when the
+ * spectrum is empty enough that naming a peak would be inventing one.
+ *
+ * DC and the first bins are skipped: a converter with any DC offset puts a
+ * large value in bin 0, and the window smears it into bins 1 and 2 — enough
+ * that a real tone loses to it. The search starts at the bottom of the
+ * measurement range, and never below bin 3.
+ */
+export function dominantHz(power: Float64Array, binHz: number): number | null {
+  const last = power.length - 1;
+  if (last < 4) return null;
+  const first = Math.max(3, Math.ceil(F_MIN / binHz));
+  if (first >= last) return null;
+
+  let best = first;
+  for (let k = first + 1; k < last; k++) {
+    if (power[k] > power[best]) best = k;
+  }
+  // Nothing worth naming.
+  if (power[best] <= 1e-24) return null;
+
+  // Parabolic interpolation on the log magnitudes of the three bins around
+  // the peak. Logs rather than powers because the main lobe of a windowed
+  // sinusoid is closer to a parabola in dB than in linear power, which is
+  // what makes this accurate to a small fraction of a bin.
+  const l = Math.log(Math.max(power[best - 1], 1e-30));
+  const c = Math.log(Math.max(power[best], 1e-30));
+  const r = Math.log(Math.max(power[best + 1], 1e-30));
+  const denom = l - 2 * c + r;
+  const delta =
+    Math.abs(denom) < 1e-18 ? 0 : Math.min(0.5, Math.max(-0.5, (0.5 * (l - r)) / denom));
+  return (best + delta) * binHz;
+}
+
+/** The tallest band on the RTA, and the frequency behind it. */
+export interface PeakBand {
+  /** Index into `BandPlan.bands`. */
+  index: number;
+  /**
+   * Where the peak actually is, Hz. The band's centre, unless a distinct
+   * spectral maximum — a tone, a ring, a hum — is what makes the band the
+   * tallest, in which case that maximum, interpolated between bins.
+   */
+  hz: number;
+}
+
+/**
+ * Name the tallest band, and where within it the peak sits.
+ *
+ * `bandPower` is the band table the RTA draws and `power` the bin spectrum it
+ * was integrated from — both averaged the same way, so the readout settles at
+ * the rate the display does. It names the bar the eye picks out as tallest,
+ * so it can never disagree with the graph; and when a distinct peak in the
+ * spectrum is what makes that bar the tallest, it gives the peak's frequency
+ * to a fraction of a bin rather than the band's centre, which at 1/3 octave
+ * is a quarter of an octave wide.
+ *
+ * The fine peak is only accepted when it lies inside the tallest band — a tone
+ * is what makes its band the tallest, so its lobe's maximum sits inside the
+ * band's edges. Anywhere else it is a different thing: on pink noise the
+ * strongest bin sits at the bottom of the range whichever band is tallest, and
+ * quoting it would name a place the display shows nothing special. The band
+ * is widened by a bin on each side for the unresolved region, where a band is
+ * narrower than the bins and a whole-bin quantisation decides which of
+ * several bands sharing one measurement comes out tallest.
+ */
+export function peakBand(
+  plan: BandPlan,
+  bandPower: ArrayLike<number>,
+  power: Float64Array,
+): PeakBand | null {
+  const { bands, binHz } = plan;
+  const n = bands.length;
+  if (n === 0) return null;
+
+  let best = 0;
+  for (let i = 1; i < n; i++) {
+    if (bandPower[i] > bandPower[best]) best = i;
+  }
+  if (!(bandPower[best] > 1e-24)) return null;
+
+  const b = bands[best];
+  const fine = dominantHz(power, binHz);
+  const hz =
+    fine !== null && fine >= b.flo - binHz && fine <= b.fhi + binHz ? fine : b.fc;
+  return { index: best, hz };
 }
 
 /**
