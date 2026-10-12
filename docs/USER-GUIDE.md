@@ -9,10 +9,10 @@ spectrograph and a level meter, sharing one frequency axis.
 display, so a correct analyser draws a level line, which makes this the picture to check any
 change against.*
 
-> **Before you rely on this:** the analysis chain is verified numerically. 29 tests pin the power
+> **Before you rely on this:** the analysis chain is verified numerically. 37 tests pin the power
 > normalisation at every transform size and through every window, the band-integration invariants,
-> and the agreement between the band levels and the spectrum they come from. The running app is
-> checked against its own pink-noise source.
+> the agreement between the band levels and the spectrum they come from, and the peak-frequency
+> readout. The running app is checked against its own pink-noise source.
 >
 > **It has not been verified against a calibrated measurement microphone or a reference analyser,
 > and no absolute SPL claim is made.** The dB offset field is an unverified number you supply, and

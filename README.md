@@ -2,13 +2,13 @@
 
 > **AI-assisted project.** This codebase was created with [Claude Code](https://claude.com/claude-code)
 > (Anthropic), directed and reviewed by a human author. The analysis chain is verified
-> numerically: 29 tests pin the power normalisation at every transform size and through every
-> window, the band-integration invariants, and the agreement between the band levels and the
-> spectrum they come from. The running app is also checked against its own pink-noise source,
-> which a constant-percentage-bandwidth display has to draw flat. It has **not** been verified
-> against a calibrated measurement microphone or a reference analyser, and I'm not making any
-> absolute SPL claim: the dB offset field is an unverified number you supply, and there's no
-> microphone correction.
+> numerically: 37 tests pin the power normalisation at every transform size and through every
+> window, the band-integration invariants, the agreement between the band levels and the
+> spectrum they come from, and the peak-frequency readout. The running app is also checked
+> against its own pink-noise source, which a constant-percentage-bandwidth display has to draw
+> flat. It has **not** been verified against a calibrated measurement microphone or a reference
+> analyser, and I'm not making any absolute SPL claim: the dB offset field is an unverified
+> number you supply, and there's no microphone correction.
 
 simpleRTA is a real-time audio analyser that runs entirely in a browser tab.
 
