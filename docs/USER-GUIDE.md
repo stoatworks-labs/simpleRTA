@@ -1,22 +1,22 @@
 # simpleRTA user guide
 
-**A real-time audio analyser that runs entirely in a browser tab.** RTA, spectrograph and a level
-meter, sharing one frequency axis.
+simpleRTA is a real-time audio analyser that runs entirely in a browser tab: an RTA, a
+spectrograph and a level meter, sharing one frequency axis.
 
 ![The RTA over the spectrograph, sharing a frequency axis, with the level meter down the right](screenshots/split.png)
 
-*Split view on the built-in pink noise. **Pink noise is flat on a constant-percentage-bandwidth
-display, so a correct analyser draws a level line** — which is what makes this the picture worth
-checking a change against.*
+*Split view on the built-in pink noise. Pink noise is flat on a constant-percentage-bandwidth
+display, so a correct analyser draws a level line, which makes this the picture to check any
+change against.*
 
-> **Before you rely on this:** the analysis chain is verified numerically — 29 tests pin the power
+> **Before you rely on this:** the analysis chain is verified numerically. 29 tests pin the power
 > normalisation at every transform size and through every window, the band-integration invariants,
 > and the agreement between the band levels and the spectrum they come from. The running app is
 > checked against its own pink-noise source.
 >
 > **It has not been verified against a calibrated measurement microphone or a reference analyser,
 > and no absolute SPL claim is made.** The dB offset field is an unverified number you supply, and
-> **there is no microphone correction.**
+> **there's no microphone correction.**
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
 
@@ -24,25 +24,25 @@ checking a change against.*
 
 ## Start on pink noise
 
-**Pink noise is generated in the page and analysed without going anywhere near the speakers.**
+Pink noise is generated in the page and analysed without going anywhere near the speakers.
 
 Because pink noise is flat on a constant-percentage-bandwidth display, a correct analyser draws a
-level line. **That is the check that the analyser reads level, before you trust what it says about
-a room.** Do it once, on any new machine or browser.
+level line. That's how you check the analyser reads level before you trust what it says about a
+room. Do it once, on any new machine or browser.
 
 ---
 
 ## Sources
 
-**An audio input** — a microphone, a measurement mic on an interface, or a return from a console.
-The browser's **echo cancellation, noise suppression and automatic gain are all switched off**, so
+**An audio input**: a microphone, a measurement mic on an interface, or a return from a console.
+The browser's echo cancellation, noise suppression and automatic gain are all switched off, so
 what you see is the signal rather than the voice pipeline the browser would otherwise hand you.
 
-**Tab audio** — captures what another browser tab is playing. Pick a tab in the picker and tick
-*Share tab audio*. **Whole-window and full-screen shares carry no audio on most platforms.** Chrome
+**Tab audio**: captures what another browser tab is playing. Pick a tab in the picker and tick
+*Share tab audio*. Whole-window and full-screen shares carry no audio on most platforms. Chrome
 and Edge only.
 
-**Pink noise** — as above.
+**Pink noise**: as above.
 
 ---
 
@@ -52,16 +52,16 @@ Levels are **dBFS**, on the convention that a full-scale sine reads 0 dB.
 
 The **offset** field adds a constant to everything shown, so with a reference of known level you
 can dial the scale into SPL. **Nothing verifies that number, and no microphone correction is
-applied** — so it is a working scale, not a measurement.
+applied**, so treat it as a working scale rather than a measurement.
 
 ### The shaded region is arithmetic, not a fault
 
-At the fine resolutions **the low bands are narrower than the transform can actually resolve.**
+At the fine resolutions the low bands are narrower than the transform can actually resolve.
 Below the frequency stated under the controls, neighbouring bands report *shares of a single
 measurement* rather than independent ones, and the RTA shades that part of the graph.
 
-It is the arithmetic of asking a 341 ms transform for 1/48-octave detail at 30 Hz. **Lengthen the
-transform, or use a coarser resolution, and the shading recedes.**
+It's the arithmetic of asking a 341 ms transform for 1/48-octave detail at 30 Hz. Lengthen the
+transform, or use a coarser resolution, and the shading recedes.
 
 | Resolution | 16384-point transform, 48 kHz | 65536-point |
 |---|---|---|
@@ -69,7 +69,7 @@ transform, or use a coarser resolution, and the shading recedes.**
 | 1/12 octave | 76 Hz | 19 Hz |
 | 1/48 octave | 304 Hz | 76 Hz |
 
-**Do not read a difference inside the shading as a difference in the room.**
+**Don't read a difference inside the shading as a difference in the room.**
 
 ### Which window
 
@@ -80,8 +80,8 @@ transform, or use a coarser resolution, and the shading recedes.**
 | **Flat-top** | When the **amplitude** of a tone matters more than its frequency: accurate to about 0.01 dB wherever the tone falls between bins, with poor frequency resolution in exchange. |
 | **Rectangular** | Only for signals that are periodic within the frame. |
 
-**Flat-top is the one people reach for too rarely.** If you are matching levels between two tones,
-Hann will cost you up to 1.4 dB depending on where the tone lands.
+Flat-top is the one people don't reach for often enough. If you're matching levels between two
+tones, Hann can cost you up to 1.4 dB depending on where the tone lands.
 
 ---
 
@@ -91,11 +91,11 @@ Hann will cost you up to 1.4 dB depending on where the tone lands.
 - **FFT size** 2048 to 65536, with a selectable window and overlap
 - **Peak hold** per band, and exponential or infinite averaging
 - **Spectrograph** sharing the RTA's frequency axis
-- **Full-height bargraph meter** — peak, RMS, peak hold and a latching clip indicator, plus
+- **Full-height bargraph meter**: peak, RMS, peak hold and a latching clip indicator, plus
   broadband Z / A / C readouts
 
-No backend, no accounts, no telemetry. The audio is analysed on the page and never leaves the
-browser.
+It doesn't have a backend or accounts, and it doesn't collect telemetry. The audio is analysed on
+the page and never leaves the browser.
 
 ---
 
