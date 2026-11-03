@@ -82,6 +82,9 @@ export default function App() {
           {/* From the build, not typed here: a hand-written version is one more
               thing to forget at release time. Same source as the About dialog. */}
           <span className="ver">{__APP_VERSION__}</span>
+          <a className="ver" href="https://stoatworks-labs.com/web-tools/simplerta/" target="_blank" rel="noopener">
+            stoatworks-labs.com
+          </a>
         </div>
 
         <select

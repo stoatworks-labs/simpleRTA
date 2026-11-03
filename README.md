@@ -14,6 +14,8 @@ simpleRTA is a real-time audio analyser that runs entirely in a browser tab.
 
 **[simple-rta.stoatworks-labs.com](https://simple-rta.stoatworks-labs.com)**
 
+There's more on [its page at stoatworks-labs.com](https://stoatworks-labs.com/web-tools/simplerta/), along with the [user guide](https://stoatworks-labs.com/software/simplerta/guide/) and [notes on running it on your own server](https://stoatworks-labs.com/web-tools/self-hosting/).
+
 ![simpleRTA: the RTA over the spectrograph, sharing a frequency axis, with the
 level meter down the right-hand side](docs/screenshots/split.png)
 

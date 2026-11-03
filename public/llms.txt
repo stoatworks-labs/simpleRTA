@@ -1,0 +1,16 @@
+# simpleRTA
+
+> A real-time analyser in a browser tab
+
+A real-time audio analyser that runs entirely in a browser tab: an RTA from 1/3 to 1/48 octave, a spectrograph sharing its frequency axis, and a full-height meter with peak, RMS, peak hold and broadband Z/A/C. The transform chain is pinned down by tests at every size and window, and the built-in pink noise source is there so you can check it reads level properly before you believe anything it tells you about a room.
+
+It's a Stoatworks Labs web tool: free, and it runs in a web browser.
+
+## Links
+
+- [simpleRTA, the app](https://simple-rta.stoatworks-labs.com/): runs in the browser, free
+- [Project page](https://stoatworks-labs.com/software/simplerta/)
+- [Web tool page](https://stoatworks-labs.com/web-tools/simplerta/)
+- [User guide](https://stoatworks-labs.com/software/simplerta/guide/)
+- [Source on GitHub](https://github.com/stoatworks-labs/simpleRTA)
+- [Self-hosting](https://stoatworks-labs.com/web-tools/self-hosting/): run it on your own server

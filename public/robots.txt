@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://simple-rta.stoatworks-labs.com/sitemap.xml

@@ -7,7 +7,7 @@
     <meta name="color-scheme" content="dark" />
     <meta
       name="description"
-      content="Real-time audio analyser in the browser: 1/3 to 1/48 octave RTA, scrolling spectrograph and a full-height peak/RMS meter."
+      content="A free real-time audio analyser that runs in a browser tab: an RTA from 1/3 to 1/48 octave, a spectrograph sharing its frequency axis, and a full-height peak and RMS meter."
     />
     <title>simpleRTA — real-time audio analyser</title>
     <link rel="canonical" href="https://simple-rta.stoatworks-labs.com/">
@@ -16,7 +16,7 @@
     <meta property="og:locale" content="en_GB">
     <meta property="og:url" content="https://simple-rta.stoatworks-labs.com/">
     <meta property="og:title" content="simpleRTA — real-time audio analyser">
-    <meta property="og:description" content="Real-time audio analyser in the browser: 1/3 to 1/48 octave RTA, scrolling spectrograph and a full-height peak/RMS meter.">
+    <meta property="og:description" content="A free real-time audio analyser that runs in a browser tab: an RTA from 1/3 to 1/48 octave, a spectrograph sharing its frequency axis, and a full-height peak and RMS meter.">
     <!-- Card hosted on the main site: it is regenerated in place by the
          website's make_thumbnails.py and keeps its filename, so a copy
          vendored here would go stale without anything saying so. -->
@@ -26,6 +26,38 @@
     <meta property="og:image:height" content="720">
     <meta property="og:image:alt" content="simpleRTA — real-time audio analyser">
     <meta name="twitter:card" content="summary_large_image">
+    <!-- One entity with the tool's page on stoatworks-labs.com: same @id there. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "@id": "https://simple-rta.stoatworks-labs.com#app",
+        "name": "simpleRTA",
+        "url": "https://simple-rta.stoatworks-labs.com",
+        "description": "A free real-time audio analyser that runs in a browser tab: an RTA from 1/3 to 1/48 octave, a spectrograph sharing its frequency axis, and a full-height peak and RMS meter.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any (runs in a web browser)",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "GBP"
+        },
+        "author": {
+          "@id": "https://stoatworks-labs.com/#organization",
+          "@type": "Organization",
+          "name": "Stoatworks Labs",
+          "url": "https://stoatworks-labs.com/"
+        },
+        "publisher": {
+          "@id": "https://stoatworks-labs.com/#organization"
+        },
+        "sameAs": [
+          "https://stoatworks-labs.com/web-tools/simplerta/",
+          "https://github.com/stoatworks-labs/simpleRTA"
+        ]
+      }
+    </script>
     <meta name="twitter:image" content="https://stoatworks-labs.com/thumbs/simplerta.png">
       <link rel="manifest" href="/manifest.webmanifest" />
     <!-- iOS ignores the manifest's icons and wants a PNG of its own. -->
@@ -35,6 +67,18 @@
     <meta name="theme-color" content="#08090b" media="(prefers-color-scheme: dark)" />
   </head>
   <body>
+    <noscript>
+      <h1>simpleRTA</h1>
+      <p>A real-time analyser in a browser tab.</p>
+      <p>A real-time audio analyser that runs entirely in a browser tab: an RTA from 1/3 to 1/48 octave, a spectrograph sharing its frequency axis, and a full-height meter with peak, RMS, peak hold and broadband Z/A/C. The transform chain is pinned down by tests at every size and window, and the built-in pink noise source is there so you can check it reads level properly before you believe anything it tells you about a room.</p>
+      <p>simpleRTA runs in the browser and needs JavaScript.</p>
+      <ul>
+        <li><a href="https://stoatworks-labs.com/software/simplerta/">simpleRTA on stoatworks-labs.com</a></li>
+        <li><a href="https://stoatworks-labs.com/software/simplerta/guide/">User guide</a></li>
+        <li><a href="https://github.com/stoatworks-labs/simpleRTA">Source on GitHub</a></li>
+        <li><a href="https://stoatworks-labs.com/web-tools/self-hosting/">Running it on your own server</a></li>
+      </ul>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <!--
