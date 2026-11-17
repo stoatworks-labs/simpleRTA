@@ -1,26 +1,53 @@
 /*
- * Palette lifted from atem-overseer so the two tools look like siblings on the
- * same rack — same greys, same green/amber/red metering ramp.
+ * Colours come from the shared Stoatworks theme (stoatworks-theme.css, imported
+ * first), so the controls follow the system's light or dark setting the way
+ * every fleet tool does. The instrument itself (RTA, spectrograph, meter) sits
+ * on the theme's stage, which stays dark in both modes, and keeps the
+ * atem-overseer greys and green/amber/red metering ramp it was drawn with.
  */
 :root {
-  --bg: #08090b;
-  --panel: #121317;
-  --panel-2: #1a1c22;
-  --tile: #000;
-  --line: #262a31;
-  --text: #e7e8ea;
-  --muted: #8a909a;
-  --muted-2: #5b616b;
-  --accent: #2b8fff;
+  --bg: var(--sw-paper);
+  --panel: var(--sw-card);
+  --panel-2: var(--sw-card);
+  --tile: var(--sw-stage);
+  --line: var(--sw-line);
+  --text: var(--sw-ink);
+  --muted: var(--sw-muted);
+  --muted-2: var(--sw-muted);
+  --accent: var(--sw-accent);
+  --danger: var(--sw-bad);
   --tally-red: #ff2f2f;
   --tally-green: #33d17a;
-  --amber: #ffb02e;
+  /* Peak hold: amber means "holding" here. Deeper on paper, so the filled
+     button still stands off a white control strip. */
+  --amber: #e89a14;
+  --amber-ink: #17181c;
   --meter-lo: #37d67a;
   --meter-mid: #ffd23f;
   --meter-hi: #ff3b30;
-  --radius: 6px;
-  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: var(--sw-radius-sm);
+  --mono: var(--sw-mono);
+  --sans: var(--sw-font);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --amber: #ffb02e; }
+}
+:root[data-theme="dark"] { --amber: #ffb02e; }
+
+/*
+ * The instrument tiles are output surfaces: dark in both modes, with the greys
+ * the canvases are drawn in. Scoped here so the overlay card (UI, inside
+ * .plots but outside any tile) keeps the page's own colours.
+ */
+.plot, .meterpane {
+  --panel: color-mix(in srgb, var(--sw-stage-ink) 5%, var(--sw-stage));
+  --panel-2: color-mix(in srgb, var(--sw-stage-ink) 9%, var(--sw-stage));
+  --line: var(--sw-stage-line);
+  --text: var(--sw-stage-ink);
+  --muted: #8a909a;
+  --muted-2: #5b616b;
+  color: var(--text);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -45,34 +72,49 @@ body {
  */
 .app { height: 100dvh; display: flex; flex-direction: column; }
 
-/* ---------- top bar ---------- */
+/* ---------- top bar: the theme's navy bar (.sw-bar) ---------- */
 .topbar {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 8px 14px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(#101116, #0b0c0f);
   flex: none;
 }
-.brand { display: flex; align-items: baseline; gap: 8px; }
-.brand h1 { font-size: 15px; margin: 0; letter-spacing: 0.02em; font-weight: 650; }
-.brand h1 em { font-style: normal; color: var(--accent); }
-.brand .ver { font-size: 11px; color: var(--muted-2); font-family: var(--mono); }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand h1 { font-size: 15px; margin: 0; }
+.brand h1 em { font-style: normal; color: var(--sw-accent-soft); }
+.brand .ver { font-size: 11px; color: var(--sw-navy-ink-2); font-family: var(--mono); }
+/* The tool's own .btn and select rules are unlayered, so they would beat the
+   theme's bar styles: restate them for the bar. */
+.topbar .btn {
+  background: transparent; color: var(--sw-navy-ink); border-color: var(--sw-navy-line);
+}
+.topbar .btn:hover:not(:disabled) { border-color: var(--sw-accent-soft); }
+.topbar .btn.primary {
+  background: var(--sw-accent-soft); border-color: var(--sw-accent-soft); color: var(--sw-navy);
+}
+/* The bar is navy in both modes, so Stop takes the dark-mode red there. */
+.topbar .btn.danger { border-color: rgba(224, 122, 112, 0.6); color: #f0a49c; }
+.topbar .btn.danger:hover { border-color: #f0a49c; }
+.topbar select {
+  background: var(--sw-navy-tint); color: var(--sw-navy-ink); border-color: var(--sw-navy-line);
+}
+.topbar select:hover { border-color: var(--sw-accent-soft); }
+.topbar select option { background: var(--sw-card); color: var(--sw-ink); }
 
 .spacer { flex: 1; }
 
 .srcinfo {
   display: flex; align-items: center; gap: 8px;
-  font-size: 12px; color: var(--muted);
+  font-size: 12px; color: var(--sw-navy-ink-2);
   font-family: var(--mono);
   min-width: 0;
 }
 .srcinfo .name {
-  color: var(--text);
+  color: var(--sw-navy-ink);
   max-width: 34ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted-2); flex: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sw-navy-line); flex: none; }
 .dot.live { background: var(--tally-green); box-shadow: 0 0 6px rgba(51, 209, 122, 0.7); }
 
 /* ---------- main area ---------- */
@@ -80,7 +122,7 @@ body {
 .plots {
   position: relative; /* the source-picker overlay anchors to this */
   flex: 1; display: flex; flex-direction: column; min-width: 0; gap: 1px;
-  background: var(--line);
+  background: var(--sw-stage-line);
 }
 .plot {
   position: relative; flex: 1; min-height: 0; background: var(--tile);
@@ -171,14 +213,14 @@ body {
 }
 .seg { display: flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .seg button {
-  background: var(--panel-2); border: none; border-right: 1px solid var(--line);
+  background: var(--panel-2); border: none; border-right: 1px solid var(--line); border-radius: 0;
   color: var(--muted); font-size: 12px; font-family: var(--mono);
   padding: 6px 9px; cursor: pointer; white-space: nowrap;
 }
 .seg button:last-child { border-right: none; }
-.seg button:hover { color: var(--text); background: #22252c; }
-.seg button.on { background: var(--accent); color: #fff; }
-.seg button.on.warn { background: var(--amber); color: #17181c; }
+.seg button:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, var(--panel-2)); }
+.seg button.on { background: var(--accent); color: var(--sw-on-accent); }
+.seg button.on.warn { background: var(--amber); color: var(--amber-ink); }
 
 select, input[type="number"] {
   background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
@@ -189,33 +231,34 @@ input[type="number"] { width: 74px; }
 
 .btn {
   padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line);
-  background: var(--panel-2); color: var(--text); font-size: 12px; font-weight: 600;
+  background: var(--panel-2); color: var(--text); font-size: 12px; font-weight: 500;
   cursor: pointer; white-space: nowrap;
 }
 .btn:hover:not(:disabled) { border-color: var(--accent); }
 .btn:disabled { opacity: 0.4; cursor: default; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn.on { background: var(--amber); border-color: var(--amber); color: #17181c; }
-.btn.danger { border-color: #4a2226; color: #ff8f8f; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--sw-on-accent); font-weight: 600; }
+.btn.on { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); font-weight: 600; }
+.btn.danger { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); color: var(--danger); }
 
-.hint { font-size: 11px; color: var(--muted-2); font-family: var(--mono); }
-.hint b { color: var(--muted); font-weight: 600; }
+.hint { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.hint b { color: var(--text); font-weight: 600; }
 
 /* ---------- error / start overlay ---------- */
 .overlay {
   position: absolute; inset: 0; display: grid; place-items: center;
-  background: rgba(8, 9, 11, 0.82); padding: 24px; z-index: 5;
+  background: color-mix(in srgb, var(--sw-stage) 82%, transparent); padding: 24px; z-index: 5;
 }
 .card {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--sw-radius);
   padding: 22px 24px; max-width: 560px;
 }
 .card h2 { margin: 0 0 8px; font-size: 15px; }
 .card p { margin: 0 0 14px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.card p b { color: var(--text); }
 .card .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .card .err {
-  font-family: var(--mono); font-size: 12px; color: #ff8f8f;
-  background: #17111300; border: 1px solid #4a2226; border-radius: var(--radius);
+  font-family: var(--mono); font-size: 12px; color: var(--danger);
+  background: transparent; border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--line)); border-radius: var(--radius);
   padding: 8px 10px; margin-bottom: 14px; line-height: 1.5;
 }
 

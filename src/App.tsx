@@ -74,10 +74,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="topbar">
+      <div className="topbar sw-bar">
         <div className="brand">
-          <h1>
-            simple<em>RTA</em>
+          <h1 className="sw-brand">
+            <span className="sw-mark" aria-hidden="true">▥</span>
+            <span>
+              simple<em>RTA</em>
+            </span>
           </h1>
           {/* From the build, not typed here: a hand-written version is one more
               thing to forget at release time. Same source as the About dialog. */}

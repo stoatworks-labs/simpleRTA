@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
       content="A free real-time audio analyser that runs in a browser tab: an RTA from 1/3 to 1/48 octave, a spectrograph sharing its frequency axis, and a full-height peak and RMS meter."
@@ -62,9 +62,10 @@
       <link rel="manifest" href="/manifest.webmanifest" />
     <!-- iOS ignores the manifest's icons and wants a PNG of its own. -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <!-- Tints the status bar when installed. Two, so it follows the theme. -->
-    <meta name="theme-color" content="#08090b" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#08090b" media="(prefers-color-scheme: dark)" />
+    <!-- Tints the status bar when installed: the navy of the header bar, which
+         stays navy in both modes. -->
+    <meta name="theme-color" content="#0e2942" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e2942" media="(prefers-color-scheme: dark)" />
   </head>
   <body>
     <noscript>
